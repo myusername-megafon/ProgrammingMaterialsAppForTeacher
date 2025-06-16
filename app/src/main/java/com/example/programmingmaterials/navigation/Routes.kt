@@ -8,7 +8,7 @@ object Routes {
     object Home
 
     @Serializable
-    object Login
+    object AddMaterial
 
     @Serializable
     object UserProgress

@@ -27,7 +27,7 @@ class MaterialDetailsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val materialId = savedStateHandle.get<Int>("materialId")
-            val material = materialRepo.getMaterialById(materialId = materialId!!, userID = authManager.getUserId())
+            val material = materialRepo.getMaterialById(materialId = materialId!!, userID = authManager.getAuthorId())
             state.value = state.value.copy(
                 materialName = material.name,
                 categoryName = material.category,
@@ -35,71 +35,6 @@ class MaterialDetailsViewModel @Inject constructor(
                 materialText = material.content,
                 status = material.status ?: "Не начато"
             )
-        }
-    }
-
-    fun handleStartButtonClick() {
-        viewModelScope.launch {
-            try {
-                when (state.value.status) {
-                    "Не начато" -> {
-                        progressRepo.createProgressEntry(
-                            userId = authManager.getUserId(),
-                            materialId = savedStateHandle.get<Int>("materialId")!!,
-                            status = "В процессе"
-                        )
-                        updateState("В процессе")
-                    }
-
-                    "Отложено" -> {
-                        progressRepo.updateProgressStatus(
-                            userId = authManager.getUserId(),
-                            materialId = savedStateHandle.get<Int>("materialId")!!,
-                            newStatus = "В процессе"
-                        )
-                        updateState("В процессе")
-                    }
-
-                    "В процессе" -> {
-                        progressRepo.updateProgressStatus(
-                            userId = authManager.getUserId(),
-                            materialId = savedStateHandle.get<Int>("materialId")!!,
-                            newStatus = "Завершено"
-                        )
-                        updateState("Завершено")
-                    }
-                }
-            } catch (e: Exception) {
-                throw e
-            }
-        }
-    }
-
-    fun handleSecondButtonClick() {
-        viewModelScope.launch {
-            try {
-                when (state.value.status) {
-                    "В процессе" -> {
-                        progressRepo.updateProgressStatus(
-                            userId = authManager.getUserId(),
-                            materialId = savedStateHandle.get<Int>("materialId")!!,
-                            newStatus = "Отложено"
-                        )
-                        updateState("Отложено")
-                    }
-                    "Не начато" -> {
-                        progressRepo.createProgressEntry(
-                            userId = authManager.getUserId(),
-                            materialId = savedStateHandle.get<Int>("materialId")!!,
-                            status = "Отложено"
-                        )
-                        updateState("Отложено")
-                    }
-
-                }
-            } catch (e: Exception) {
-                throw e
-            }
         }
     }
 
@@ -124,30 +59,5 @@ class MaterialDetailsViewModel @Inject constructor(
         }
     }
 
-    fun addReview(content: String, rating: Int) {
-        viewModelScope.launch {
-            try {
-                feedbackRepo.AddFeedback(
-                    materialId = savedStateHandle.get<Int>("materialId")!!,
-                    userId = 1, // Замените на реальный ID пользователя
-                    content = content,
-                    rating = rating
-
-                )
-                loadReviews()
-                closeAddFeedbackDialog()
-            } catch (e: Exception) {
-                throw e
-            }
-        }
-    }
-
-    fun openAddFeedbackDialog() {
-        state.value = state.value.copy(showAddFeedbackDialog = true)
-    }
-
-    fun closeAddFeedbackDialog() {
-        state.value = state.value.copy(showAddFeedbackDialog = false)
-    }
 }
 

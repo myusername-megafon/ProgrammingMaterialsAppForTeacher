@@ -10,10 +10,3 @@ data class FeedbackDTO(
     @SerializedName("rating")val rating: Int,
     @SerializedName("createdDate")val date: String
 )
-
-data class AddFeedbackRequest(
-    @SerializedName("materialId")val materialId: Int,
-    @SerializedName("userId")val userId: Int,
-    @SerializedName("content")val content: String,
-    @SerializedName("rating")val rating: Int
-)

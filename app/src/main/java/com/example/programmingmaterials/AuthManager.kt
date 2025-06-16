@@ -1,12 +1,9 @@
 package com.example.programmingmaterials
 
 import android.content.Context
-import android.provider.Settings.Global.putInt
 import android.util.Log
 import androidx.core.content.edit
 import com.google.gson.annotations.SerializedName
-import kotlinx.coroutines.delay
-import retrofit2.Retrofit
 import javax.inject.Inject
 
 class AuthManager @Inject constructor(
@@ -15,7 +12,7 @@ class AuthManager @Inject constructor(
     private val prefs = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
 
     fun isLoggedIn(): Boolean {
-        return prefs.getInt("user_id", -1) != -1
+        return prefs.getInt("author_id", -1) != -1
     }
 
     suspend fun logIn(email: String, password: String): Boolean {
@@ -23,7 +20,7 @@ class AuthManager @Inject constructor(
             val response = RetrofitClient.apiService.login(LoginRequest(email, password))
             if (response.isSuccessful && response.body()?.success == true) {
                 prefs.edit {
-                    putInt("user_id", response.body()?.userId ?: -1)
+                    putInt("author_id", response.body()?.authorId ?: -1)
                 }
                 true
             } else {
@@ -34,13 +31,13 @@ class AuthManager @Inject constructor(
         }
     }
 
-    fun getUserId(): Int {
-        return prefs.getInt("user_id", -1)
+    fun getAuthorId(): Int {
+        return prefs.getInt("author_id", -1)
     }
 
     fun logout() {
         prefs.edit {
-            remove("user_id")
+            remove("author_id")
         }
 
     }
@@ -50,7 +47,7 @@ class AuthManager @Inject constructor(
         email: String,
         password: String
     ): Boolean {
-        return try {
+        return false /*try {
             val response =
                 RetrofitClient.apiService.register(RegisterRequest(fullName, email, password))
             Log.e("registerLog", response.toString())
@@ -61,7 +58,7 @@ class AuthManager @Inject constructor(
             }
         } catch (e: Exception) {
             false
-        }
+        }*/
     }
 }
 
@@ -72,7 +69,7 @@ data class LoginRequest(
 
 data class LoginResponse(
     @SerializedName("success") val success: Boolean,
-    @SerializedName("userId") val userId: Int,
+    @SerializedName("authorId") val authorId: Int,
     @SerializedName("error") val error: String?
 )
 

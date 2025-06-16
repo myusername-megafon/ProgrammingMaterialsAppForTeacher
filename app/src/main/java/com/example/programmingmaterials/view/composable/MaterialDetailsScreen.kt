@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.programmingmaterials.view.composable.cards.AddFeedbackDialog
 import com.example.programmingmaterials.view.composable.cards.ReviewCard
 import com.example.programmingmaterials.model.MaterialDetailsScreenState
 import com.example.programmingmaterials.ui.theme.ProgrammingMaterialsTheme
@@ -62,19 +61,8 @@ fun MaterialDetailsScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-                navController = navController,
-                onStartButtonClick = { viewModel.handleStartButtonClick() },
-                onSecondButtonClick = { viewModel.handleSecondButtonClick() },
-                onAddReviewClick = { viewModel.openAddFeedbackDialog() }
+                navController = navController
             )
-            if (viewModel.state.value.showAddFeedbackDialog) {
-                AddFeedbackDialog(
-                    onDismiss = { viewModel.closeAddFeedbackDialog() },
-                    onConfirm = { text, rating ->
-                        viewModel.addReview(text, rating)
-                    }
-                )
-            }
         }
     }
 }
@@ -84,10 +72,7 @@ fun MaterialDetailsScreen(
 fun MaterialDetailsScreenContent(
     state: MaterialDetailsScreenState,
     modifier: Modifier,
-    onStartButtonClick: () -> Unit,
-    onSecondButtonClick: () -> Unit,
-    navController: NavController,
-    onAddReviewClick: () -> Unit
+    navController: NavController
 ) {
     ProgrammingMaterialsTheme {
         Column(
@@ -167,16 +152,6 @@ fun MaterialDetailsScreenContent(
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(vertical = 8.dp)
                         )
-                        IconButton(
-                            onClick = { onAddReviewClick() },
-                            modifier = Modifier.size(24.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Добавить отзыв",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
                     }
                 }
 
@@ -186,71 +161,6 @@ fun MaterialDetailsScreenContent(
                         usageScreen = "DetailsMaterial",
                         onDeleteButtonClick = {}
                     )
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-            ) {
-                Button(
-                    onClick = { onStartButtonClick() },
-                    modifier = Modifier
-                        .weight(0.8f)
-                        .height(48.dp),
-                    enabled = state.status != "Завершено",
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = when (state.status) {
-                            "Завершено" -> MaterialTheme.colorScheme.surfaceVariant
-                            else -> MaterialTheme.colorScheme.primary
-                        },
-                        contentColor = when (state.status) {
-                            "Завершено" -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                            else -> MaterialTheme.colorScheme.onPrimary
-                        }
-                    )
-                ) {
-                    Text(
-                        text = when (state.status) {
-                            "В процессе" -> "Завершить"
-                            "Отложено" -> "Возобновить"
-                            "Завершено" -> "Завершено"
-                            else -> "Начать"
-                        },
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                if (state.status != "Завершено") {
-                    Button(
-                        onClick = { onSecondButtonClick() },
-                        modifier = Modifier
-                            .weight(0.2f)
-                            .height(48.dp),
-                        enabled = state.status == "В процессе" || state.status == "Не начато",
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (state.status == "В процессе" || state.status == "Не начато")
-                                MaterialTheme.colorScheme.primary
-                            else
-                                MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = if (state.status == "В процессе" || state.status == "Не начато")
-                                MaterialTheme.colorScheme.onPrimary
-                            else
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                        )
-                    ) {
-                        Icon(
-                            imageVector = if (state.status == "В процессе")
-                                Icons.Default.Add
-                            else
-                                Icons.Default.DateRange,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
                 }
             }
         }
@@ -274,10 +184,7 @@ fun MaterialDetailsScreenContentPreview() {
         MaterialDetailsScreenContent(
             state = fakeState,
             modifier = Modifier.fillMaxSize(),
-            onStartButtonClick = {},
-            onSecondButtonClick = {},
-            navController = rememberNavController(),
-            onAddReviewClick = { }
+            navController = rememberNavController()
         )
     }
 }

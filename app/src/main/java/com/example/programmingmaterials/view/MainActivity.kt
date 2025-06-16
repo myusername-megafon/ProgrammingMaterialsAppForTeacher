@@ -8,8 +8,9 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -17,10 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -31,13 +29,10 @@ import androidx.navigation.navArgument
 import com.example.programmingmaterials.view.composable.HomeScreen
 import com.example.programmingmaterials.view.composable.MaterialDetailsScreen
 import com.example.programmingmaterials.view.composable.UserProfileScreen
-import com.example.programmingmaterials.view.composable.UserProgressScreen
 import com.example.programmingmaterials.navigation.Routes
 import com.example.programmingmaterials.ui.theme.ProgrammingMaterialsTheme
-import com.example.programmingmaterials.view.composable.FeedbacksScreen
-import com.example.programmingmaterials.view.composable.TestScreen
+import com.example.programmingmaterials.view.composable.AddMaterialScreen
 import com.example.programmingmaterials.viewmodel.MainActivityViewModel
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -66,28 +61,16 @@ class MainActivity : ComponentActivity() {
                                 viewModel.setBottomBarVisibility(true)
                             }
                         }
-                        composable<Routes.UserProgress> {
-                            UserProgressScreen(navController)
-                            LaunchedEffect(Unit) {
-                                viewModel.setBottomBarVisibility(false)
-                            }
-                        }
                         composable<Routes.UserProfile> {
                             UserProfileScreen(navController)
                             LaunchedEffect(Unit) {
                                 viewModel.setBottomBarVisibility(true)
                             }
                         }
-                        composable<Routes.UserFeedbacks> {
-                            FeedbacksScreen(navController)
+                        composable<Routes.AddMaterial> {
+                            AddMaterialScreen()
                             LaunchedEffect(Unit) {
-                                viewModel.setBottomBarVisibility(false)
-                            }
-                        }
-                        composable<Routes.Tests> {
-                            TestScreen(navController)
-                            LaunchedEffect(Unit) {
-                                viewModel.setBottomBarVisibility(false)
+                                viewModel.setBottomBarVisibility(true)
                             }
                         }
                         composable(
@@ -120,8 +103,17 @@ fun BottomMenu(navController: NavController, viewModel: MainActivityViewModel) {
             }
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Default.AccountCircle, null) },
-            label = { Text("Профиль") },
+            icon = { Icon(Icons.Default.AddCircle, null) },
+            label = { Text("Добавить") },
+            selected = viewModel.state.value.enabledScreen == Routes.AddMaterial,
+            onClick = {
+                navController.navigate(Routes.AddMaterial)
+                viewModel.navigateTo(Routes.AddMaterial)
+            }
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.Info, null) },
+            label = { Text("Отчет") },
             selected = viewModel.state.value.enabledScreen == Routes.UserProfile,
             onClick = {
                 navController.navigate(Routes.UserProfile)

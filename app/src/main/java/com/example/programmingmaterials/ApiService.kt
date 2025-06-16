@@ -1,14 +1,13 @@
 package com.example.programmingmaterials
 
-import com.example.programmingmaterials.data.DTOClasses.AddFeedbackRequest
+import com.example.programmingmaterials.data.DTOClasses.CreateMaterialRequest
+import com.example.programmingmaterials.data.DTOClasses.CreateMaterialResponse
 import com.example.programmingmaterials.model.Category
 import com.example.programmingmaterials.data.DTOClasses.FeedbackDTO
 import com.example.programmingmaterials.data.DTOClasses.ProgressRequestDTO
 import com.example.programmingmaterials.data.DTOClasses.MaterialDTO
 import com.example.programmingmaterials.data.DTOClasses.ProgressDTO
-import com.example.programmingmaterials.data.DTOClasses.SaveResultDTO
-import com.example.programmingmaterials.data.DTOClasses.TestDTO
-import com.example.programmingmaterials.data.DTOClasses.UpdateProgressRequestDTO
+import com.example.programmingmaterials.model.Author
 import com.example.programmingmaterials.model.User
 import retrofit2.Response
 import retrofit2.http.Body
@@ -25,9 +24,6 @@ interface ApiService {
     @GET("api/Material/new/{userId}")
     suspend fun getNewMaterials(@Path("userId") userId: Int): List<MaterialDTO>
 
-    @GET("api/Material/in-progress/{userId}")
-    suspend fun getStartedMaterials(@Path("userId") userId: Int): List<MaterialDTO>
-
     @GET("api/Material/User/{userId}")
     suspend fun getAllMaterials(@Path("userId") userId: Int): List<MaterialDTO>
 
@@ -37,57 +33,33 @@ interface ApiService {
         @Path("materialId") materialId: Int
     ): MaterialDTO
 
+    @POST("api/Material/create")
+    suspend fun createMaterial(@Body request: CreateMaterialRequest): Response<Unit>
+
     //ProgressController
 
-    @POST("api/Progress/create-progress")
-    suspend fun createProgressEntry(
-        @Body request: ProgressRequestDTO
-    ): Response<Unit>
-
-    @PUT("api/Progress/update-status")
-    suspend fun updateProgressStatus(
-        @Body request: UpdateProgressRequestDTO
-    ): Response<Unit>
+    @GET("api/Progress/getUserProgress/{userEmail}")
+    suspend fun getProgress(@Path("userEmail") userEmail: String): ProgressDTO
 
     //FeedbackController
 
     @GET("api/Feedback/{materialId}")
     suspend fun getMaterialFeedbacks(@Path("materialId") materialId: Int): List<FeedbackDTO>
 
-    @POST("api/Feedback/add-feedback")
-    suspend fun createMaterialFeedback(@Body request: AddFeedbackRequest): Response<Unit>
-
-    @GET("api/Feedback/User/{userId}")
-    suspend fun getUserFeedbacks(@Path("userId") userId: Int): List<FeedbackDTO>
-
-    @DELETE("api/Feedback/delete/{feedbackId}")
-    suspend fun deleteFeedback(@Path("feedbackId") feedbackId: Int): Response<Unit>
-
-    //UserController
-
-    @GET("api/User/{userId}")
-    suspend fun getUser(@Path("userId") userId: Int): User
-
-    @GET("api/User/progressInNumbers/{userId}")
-    suspend fun getUserProgressInNumbers(@Path("userId") userId: Int): ProgressDTO
-
-    @POST("api/User/auth/login")
-    suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
-
-    @POST("api/User/register")
-    suspend fun register(@Body request: RegisterRequest): Response<RegisterResponse>
-
-    //TestController
-
-    @GET("api/Test/{userId}/{categoryName}")
-    suspend fun getTest(@Path("userId") userId: Int, @Path("categoryName") categoryName: String): TestDTO
-
-    @POST("api/Test/SaveResult")
-    suspend fun saveResult(@Body request: SaveResultDTO): Response<Unit>
-
     //CategoryController
 
     @GET("api/Category")
     suspend fun getAllCategories(): List<Category>
+
+    //AuthorController
+
+    @POST("api/Author/auth/login")
+    suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
+
+    @GET("api/Author/{authorId}")
+    suspend fun getAuthor(@Path("authorId") authorId: Int): Author
+
+    @GET("api/Author/CreatedMaterials/{authorId}")
+    suspend fun getNumberOfCreatedMaterials(@Path("authorId") authorId: Int): Int
 
 }

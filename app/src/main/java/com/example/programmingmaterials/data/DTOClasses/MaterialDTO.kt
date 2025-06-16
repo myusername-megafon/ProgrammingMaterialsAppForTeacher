@@ -11,3 +11,16 @@ data class MaterialDTO(
     @SerializedName("status") val status: String?
 )
 
+data class CreateMaterialRequest(
+    val materialName: String,
+    val typeMaterial: String,
+    val materialContent: String,
+    val authorId: Int,
+    val categoryId: Int
+)
+
+data class CreateMaterialResponse(
+    val message: String
+)
+
+

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.programmingmaterials.AuthManager
 import com.example.programmingmaterials.R
 import com.example.programmingmaterials.data.repositories.MaterialRepo
+import com.example.programmingmaterials.data.repositories.HomeRepo
 import com.example.programmingmaterials.model.HomeScreenState
 import com.example.programmingmaterials.model.MaterialProgressUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,11 +16,12 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
     private val materialRepo: MaterialRepo,
-    private val authManager: AuthManager
+    private val authManager: AuthManager,
+    private val homeRepo: HomeRepo
 ) : ViewModel() {
     private val initState = HomeScreenState()
     val screenState = mutableStateOf(initState)
-    val userId = authManager.getUserId()
+    val authorId = authManager.getAuthorId()
 
     init {
         viewModelScope.launch {
@@ -40,18 +42,11 @@ class HomeScreenViewModel @Inject constructor(
                 R.drawable.it_photo14,
                 R.drawable.it_photo15
             )
-            val newMaterials = materialRepo.getNewMaterials(userId)
-            val startedMaterials = materialRepo.getStartedMaterials(userId)
+            val author = homeRepo.getAuthor(authorId)
+            val newMaterials = materialRepo.getNewMaterials(authorId)
+            val numberOfCreatedMaterials = homeRepo.getCreatedMaterials(authorId)
+
             val mappedNewMaterials = newMaterials.map {
-                MaterialProgressUiModel(
-                    id = it.id,
-                    materialName = it.name,
-                    categoryName = it.category,
-                    status = "New",
-                    image = images.random()
-                )
-            }
-            val mappedStartedMaterials = startedMaterials.map {
                 MaterialProgressUiModel(
                     id = it.id,
                     materialName = it.name,
@@ -62,24 +57,22 @@ class HomeScreenViewModel @Inject constructor(
             }
             screenState.value = screenState.value.copy(
                 newMaterialsList = mappedNewMaterials,
-                startedMaterialsList = mappedStartedMaterials,
-                filteredStartedMaterialsList = mappedStartedMaterials,
-                filteredNewMaterialsList = mappedNewMaterials
+                filteredNewMaterialsList = mappedNewMaterials,
+                authorName = author.name,
+                authorMail = author.email,
+                createdMaterials = numberOfCreatedMaterials,
+                isLoading = true
             )
         }
     }
 
     fun filterMaterials(query: String) {
-        val filteredStarted = screenState.value.startedMaterialsList.filter {
-            it.materialName.contains(query, ignoreCase = true)
-        }
         val filteredNew = screenState.value.newMaterialsList.filter {
             it.materialName.contains(query, ignoreCase = true)
         }
 
         screenState.value = screenState.value.copy(
             searchQuery = query,
-            filteredStartedMaterialsList = filteredStarted,
             filteredNewMaterialsList = filteredNew
         )
     }

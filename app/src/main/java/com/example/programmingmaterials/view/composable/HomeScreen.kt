@@ -6,15 +6,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -37,16 +43,17 @@ fun HomeScreen(navController: NavController) {
             it
             val viewModel = hiltViewModel<HomeScreenViewModel>()
             val screenState = viewModel.screenState
-
-            HomeScreenContent(
-                state = screenState.value,
-                onMaterialClick = { materialId ->
-                    navController.navigate(Routes.MaterialDetails.createRoute(materialId))
-                },
-                onSearchQueryChange = { query ->
-                    viewModel.filterMaterials(query)
-                }
-            )
+            if (screenState.value.isLoading) {
+                HomeScreenContent(
+                    state = screenState.value,
+                    onMaterialClick = { materialId ->
+                        navController.navigate(Routes.MaterialDetails.createRoute(materialId))
+                    },
+                    onSearchQueryChange = { query ->
+                        viewModel.filterMaterials(query)
+                    }
+                )
+            } else CircularProgressIndicator()
         }
     }
 }
@@ -58,10 +65,50 @@ fun HomeScreenContent(
     onSearchQueryChange: (String) -> Unit = {}
 ) {
     Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Column {
+        Text(
+            text = "Главная",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Icon(
+            imageVector = Icons.Default.Face,
+            contentDescription = null,
+            modifier = Modifier
+                .size(116.dp)
+                .padding(8.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = state.authorName,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+        Text(
+            text = state.authorMail,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+        Text(
+            text = "Создано материалов:" + state.createdMaterials,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+
+
+        Column(
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.large)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(8.dp)
+                .fillMaxSize()
+        ) {
             TextField(
                 value = state.searchQuery,
                 onValueChange = { query ->
@@ -86,17 +133,12 @@ fun HomeScreenContent(
                     unfocusedIndicatorColor = Color.Transparent
                 )
             )
-            Text(
-                text = "Начатые материалы",
-                modifier = Modifier.padding(8.dp),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
+
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(8.dp)
             ) {
-                items(state.filteredStartedMaterialsList) {
+                items(state.filteredNewMaterialsList) {
                     MaterialProgressCard2(
                         uiModel = it,
                         cardColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -105,39 +147,14 @@ fun HomeScreenContent(
                 }
             }
         }
-        Column(
-            modifier = Modifier
-                .clip(MaterialTheme.shapes.large)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(8.dp)
-                .fillMaxSize()
-        ) {
-            Text(
-                text = "Рекомендации",
-                modifier = Modifier.padding(8.dp),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(8.dp)
-            ) {
-                items(state.filteredNewMaterialsList) {
-                    MaterialProgressCard2(
-                        uiModel = it,
-                        cardColor = MaterialTheme.colorScheme.surface,
-                        onClick = { onMaterialClick(it.id) }
-                    )
-                }
-            }
-        }
     }
 }
+
 @Composable
 @Preview(showBackground = true)
 fun MainScreenPreview() {
     ProgrammingMaterialsTheme {
-        HomeScreenContent(HomeScreenState(),{}) {
+        HomeScreenContent(HomeScreenState(), {}) {
         }
     }
 }
